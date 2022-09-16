@@ -1,0 +1,6 @@
+##
+#
+# Případný další pomocný kók.
+#
+
+

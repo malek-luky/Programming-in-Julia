@@ -1,0 +1,76 @@
+
+= 3. Domácí úkol: Počasí
+:toc:
+:author: Tomáš Kalvoda
+:date: 2022-11-28
+:stem: latexmath
+
+
+[[intro]]
+== Úvod
+
+[quote, údajně Winston Churchill (fáma Josefa Goebbelse)]
+Nevěřím žádné statistice, kterou jsem sám nezfalšoval.
+
+V tomto úkolu prozkoumáme data související s klimatem a počasím.
+
+[[data]]
+== Data
+
+V adresáři `data` je připraveno několik datových sad, které při řešení můžete využít.
+Pokud by vám přišly nedostatečné, nebo jste objevili jiné a vhodnější volně dostupné sady, můžete je také použit.
+Jen je přidejte do tohoto adresáře a uveďte zdroj.
+
+  * `monthly_in_situ_co2_mlo.csv` obsahuje údaje o koncentraci CO2 v atmosféře měřené na https://gml.noaa.gov/obop/mlo/[Havajské observatoři Mauna Loa] od roku 1958 do současnosti (poznámky: stačí, když použijete 5. "syrový" sloupec; chybějící hodnoty jsou označeny magickou hodnotou `-99.99`; další detaily jsou uvedeny v souboru).
+  https://scrippsco2.ucsd.edu/data/atmospheric_co2/primary_mlo_co2_record.html[Zdroj].
+  * `PKLM_pro_portal.xlsx` v listu `data` obsahuje teplotní údaje měřené každý den v https://www.klementinum.com[pražském Klementinu] od roku 1775.
+  https://www.chmi.cz/historicka-data/pocasi/praha-klementinum#[Zdroj].
+  * `aravg.mon.ocean.90S.90N.v5.0.0.202210.asc` obsahuje (pravděpodobně) měsíční odchylku průměrné globální teploty oceánů od jisté referenční hladiny (odvozené od klimatu v letech 1971 až 2000) od roku 1880 (třetí sloupec).
+  https://data.noaa.gov/dataset/dataset/noaa-global-surface-temperature-dataset[Zdroj], https://www.ncei.noaa.gov/data/noaa-global-surface-temperature/v5/access/timeseries/[Zdroj].
+
+[[ukoly]]
+== Úkoly
+
+=== Mauna Loa
+
+  1. Načtěte tabulku s měřeními koncentrace CO2 na Mauna Loa observatoři a vytvořte graf reprezentující vývoj této veličiny.
+  2. Pomocí regrese (např. použijte balíček https://gitlab.fit.cvut.cz/BI-JUL/WLS.jl[WLS.jl]) zkuste argumentovat jaký trend nejlépe vystihuje tato data?
+  Jde o lineární, kvadratický, kubický, nebo exponenciální růst?
+
+
+=== Klementinum
+
+  1. Načtěte tabulku s měřeními teploty v pražském Klementinu.
+  2. Vypočtěte průměrné (jako průměry denních průměrných teplot) teploty pro každý měsíc (tj. pro leden 1775, leden 1776, leden 1777, atd.). Vytvořte grafy průměrných měsíčních teplot pro každý měsíc (tj. "lednový" graf bude zobrazovat průměrnou teplotu v lednu 1775, lednu 1776, lednu 1777, atd.).
+  3. Vytvořte podobný graf pro minimální i maximální teploty v daném měsíc místo průměrné měsíční teploty v předchozím bodě.
+  4. Pozorujete v datech nějaký trend? Například v poslední 50 nebo 25 letech?
+
+
+=== Teplota oceánů
+
+  1. Načtěte tabulku ze souboru `aravg.mon.ocean.90S.90N.v5.0.0.202210.asc`.
+  2. Vizualizujte časový vývoj odchylky průměrně globální teploty oceánů.
+  3. Opět pomocí regrese zkuse na datech trend v rámci jednotlivých měsíců.
+
+
+[[notes]]
+== Poznámky
+
+Svou implementaci vložte do připravených souborů `helpers.jl` (je-li potřeba více kódu, který nechcete mít v prezentačním notebooku) a `03-weather.ipynb`.
+
+Pro čtení `.xlsx` souborů použijte balíček `XLSX.jl`.
+List `List` ze souboru `data.xlsx` do `DataFrame` načtete příkazem
+
+[julia]
+++++
+julia> df = DataFrame(XLSX.readtable("data.xlsx", "List"))
+++++
+
+
+[[submission]]
+== Řešení a odevzdání
+
+Opět vytvořte větev odvozenou z větve `assignment/03-weather` a nezvěte ji `solution/03-weather`.
+Do `solution/03-weather` vložte své řešení přímo editací Jupyter notebooku `04-weather.ipynb`, případně `helpers.jl`.
+Až budete se svým řešením spokojeni, vytvořte MR (to můžete i dříve) a přiřaďte mě k němu jako `assignee`.
+Tímto aktem úkol odevzdáte.
