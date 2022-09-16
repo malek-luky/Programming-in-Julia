@@ -1,28 +1,46 @@
-# Zadání domácích úkolů BI-JUL (B221)
+# Nultý domácí úkol
 
-Tento repozitář obsahuje zadání domácích úkolů
-předmětu BI-JUL v zimním semestru B221.
-
-
-## Kde najdu zadání
-
-Zadání úkolu je vždy na samostatné větvi:
-
- * `assignment/00-test`: nultý úkol pro vyskoušení si odevzdávání.
- * Další zadání budou postupně doplněna.
+_Tento domácí úkol slouží čistě k otestování řešení a odevzdávání úkolů na Gitlabu._
 
 
-## Jak úkol vyřeším, odevzdám?
+## Zadání
 
-Snadno.
-Při řešení zadání na větvi `assignment/XY-TITLE` vytvořte vlastní
-větev `solution/XY-TITLE` vycházející z větve se zadáním.
+V souboru `main.jl` je definována metoda `f`, v tento okamžik s prázdným tělem.
+Doplňte kód tak, aby výraz `f(1)` měl hodnotu `2`.
 
-Nyní pracujte, upravujte, dle libosti, větev `solution/XY-TITLE`.
 
-Pokud jste se stavem spokojeni, vytvořte _merge request_ (MR) větve `solution/XY-TITLE` do větve `assignment/XY-TITLE` a přiřaďte mě (Tomáš Kalvoda) k tomuto (MR).
+## Řešení
 
-Při vytvoření MR také dojde k zobrazení stavu případných testů, které zadání
-obsahuje.
+Nejprve si vytvořte větev vycházející z `assignment/00-test`, doporučuji ji nazvat `solution/00-test`, ale není to nutné.
+Toho lze lokálně docílit například takto:
 
-Detailní pokyny k tomuto procesu budou také vždy uvedeny přímo ve větvi se zadáním.
+```shell
+$ git checkout assignment/00-test
+$ git checkout -b solution/00-test
+```
+
+Poté proveďte své úpravy v souboru `main.jl` na větvi `solution/00-test`.
+Když jste s nimi spokojeni, commitněte je a pushněte do repozitáře.
+
+```shell
+$ git add main.jl
+$ git commit -m 'Moje řešení.'
+$ git push --set-upstream origin solution/00-test 
+```
+
+Nyní na Gitlabu vytvořte _Merge request_ (MR) z větve s řešením (`solution/00-test`) do větve se zadáním (`assignment/00-test`).
+
+Pokud na řešení stále pracujete, přidejte do názvu MR prefix `WIP:` a přiřaďte se k němu jako řešitel/ka (_Assignee_).
+Na stránce MR vidíte přehledně své změny, vidíte i stav případných testů.
+
+Pokud řešení považujete za kompletní a chcete ho odevzdat, odstraňte prefix `WIP:` z názvu a přiřaďte MR mě (Tomáš Kalvoda).
+Diskuzi nad řešením budeme vést právě na stránce s MR.
+
+
+## Lokální spuštění testů
+
+Stačí v adresáři se souborem `main.jl` spustit
+
+```shell
+$ julia --color=yes test/runtests.jl
+```
