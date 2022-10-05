@@ -1,0 +1,128 @@
+
+= 1. Domácí úkol: Dělení polynomů
+:toc:
+:author: Tomáš Kalvoda
+:date: 2022-09-27
+:stem: latexmath
+
+
+[[intro]]
+== Úvod
+
+Prvním domácím úkolem se vrátíme k studentům velmi dobře známému algebraickému algoritmu, k _dělení polynomu polynomem_.
+Obsahem tohoto úkolu cílíme zejména na následující body procvičení základů Julia (podmínky, cykly, typy, metody, práce s poli),
+
+Algoritmus dělení polynomu polynomem se používá například v konstrukci konečných těles majících stem:[p^n] prvků (zde stem:[p] je prvočíslo a stem:[n] nějaké přirozené číslo větší než 1).
+
+[[theory]]
+== Teoretický background
+
+Implementační cíle úkolu jsou tři:
+
+  1. typ `Polynomial{T}` modelující polynom s koeficienty typu `T`,
+  2. algebrické operace sčítání `+` a násobení `*` mezi instancemi dříve uvedného typu,
+  3. metoda `pdiv` provádějící dělení polynomu polynomem.
+
+Svůj kód vložte do souboru `poly.jl`, kde je i předpřipravena nekompletní šablona.
+Nedokončená místa jsou označena pomocí koentářů `# TODO`.
+V tomto souboru můžete (a je to velmi vhodné) definovat i další pomocné metody.
+Případně můžete přidat i další testy do adresáře `test`, viz sekci xref:#tests[Lokální spouštění testů].
+
+Než se pustíme do formálního popisu zadání, rychle připomeneme/představíme matematické pozadí problému.
+
+=== Dělení polynomu polynomem
+
+Mějme dva polynomy stem:[p(x) = \sum_{k=0}^n a_k x^k] a stem:[q(x) = \sum_{k=0}^m b_k x^k].
+Nechť stem:[p] má stupeň stem:[n] a stem:[q] je nenulový polynom stupně stem:[m].
+
+Cílem algoritmu dělení polynomu polynomem je nalézt polynomy stem:[Q] (násobek) a stem:[R] (zbytek) takové, že stem:[p = Q \cdot q + R] a stupeň polynomu stem:[R] je ostře menší než stupeň polynomu stem:[q].
+Tato úloha má jednoznačné řešení.
+
+Pokud stem:[n < m], pak máme triviální řešení stem:[p = 0 \cdot q + p].
+
+V opačném případě hledané polynomy určíme iterativně pomocí následujícího postupu (znáte ze svého studia jako tzv. "dlouhé" dělení):
+
+  1. nastav stem:[Q = 0] a stem:[R = p].
+  2. poděl vedoucí člen (člen s nejvyšší mocninnou) polynomu stem:[R] vedoucím členem polynomu stem:[q], tento podíl přičti k polynomu stem:[Q] a dále od stem:[R] odečti součin stem:[q] a tohoto podílu.
+  3. tento proces opakuj tak dlouho dokud není stupeň polynomu stem:[R] menší než stupeň polynomu stem:[q].
+
+Na konec vrátíme dvojici stem:[(Q, R)].
+
+
+[[implementation]]
+== Implementační pokyny
+
+Část kódu je pro vás již předpřipravena, můžete ho ale případně upravovat či zkrášlovat.
+Existující testy byste ale modifikovat neměli, určitě ovšem můžete přidávat vlastní.
+
+Ke splnění úkolu je potřeba doplnit implementace následujících metod:
+
+  1. sčítání `+` a násobení `*` polynomů,
+  2. vyhodnocování funkčního hodnot polynomů,
+  3. dělení polynomu polynomem `pdiv`, které vrátí násobek a zbytek po dělení jako dvojici (_tuple_).
+
+NOTE: Jak je uvedeno v komentáři typu `Polynomial{T}` v kódu, koeficienty polynomu jsou v poli uloženy od nejnižší mocniny k nejvyšší.
+
+
+[[tests]]
+== Lokální spouštění testů
+
+Toto zadání je úmyslně vytvořeno lehce "na koleni" a nevyužívá například moduly nebo Julia projekty ke správě závislostí (látka, ke které se dostaneme později během semestru).
+
+Zadání je doplněno sadou jednoduchých testů.
+V kořenovém adresáři tohoto zadání stačí z příkazové řádky spustit
+
+[source]
+----
+$ julia test/runtests.jl
+----
+
+Tímto příkazem spustíte všechny test v souborech `test/test_*.jl`.
+Případně tak do adresáře `test` můžete snadno přidat i další pomocné vlastní testy vlastních pomocných metod, jen je musíte pojmenovat ve tvaru `test_*.jl`.
+
+Pokud vše dopadne dobře, měli byste vidět na standardním výstup výpis podobný tomuto:
+
+[source]
+----
+$ julia test/runtests.jl
+┌ Info: Running tests in test_Polynomial.jl...
+└ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Test Summary:                                                | Pass  Total  Time
+Polynomial: constructor                                      |    2      2  0.1s
+Test Summary:                                                | Pass  Total  Time
+Polynomial: degree                                           |    5      5  0.0s
+Test Summary:                                                | Pass  Total  Time
+Polynomial: takes care of zero leading coefficient           |    3      3  0.0s
+┌ Info: Running tests in test_algebra.jl...
+└ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Test Summary:                                                | Pass  Total  Time
+Multiplication: simple examples                              |    6      6  0.1s
+Test Summary:                                                | Pass  Total  Time
+Addition: simple examples                                    |    4      4  0.0s
+┌ Info: Running tests in test_other.jl...
+└ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Test Summary:                                                | Pass  Total  Time
+subtract!                                                    |    4      4  0.1s
+┌ Info: Running tests in test_pdiv.jl...
+└ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Test Summary:                                                | Pass  Total  Time
+pdiv: simple examples                                        |    5      5  0.1s
+Test Summary:                                                | Pass  Total  Time
+pdiv: more involved examples                                 |    2      2  1.0s
+┌ Info: Running tests in test_peval.jl...
+└ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Test Summary:                                                | Pass  Total  Time
+Evaluation: simple examples                                  |    7      7  0.1s
+----
+
+V opačném případě dostanete od Julia vynadáno!
+
+
+[[submission]]
+== Řešení a odevzdání
+
+Opět vytvořte větev odvozenou z větve `assignment/01-poly` a nezvěte ji například `solution/01-poly`.
+Do `solution/01-poly` vložte své řešení editací souboru `poly.jl` případně přidáním testů do složky `test`.
+Až budete se svým řešením spokojeni, vytvořte MR (to můžete i dříve, aspoň uvidíte výsledek testů, pokud je nespouštíte lokálně) a přiřaďte mě k němu jako `assignee`.
+Tímto aktem úkol odevzdáte.
+
