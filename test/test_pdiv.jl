@@ -7,7 +7,7 @@
   # (1 + x) / (1 + 2x + 3x^2)
   @test_throws ArgumentError pdiv(Polynomial([1, 2]), Polynomial([0]))
 
-  @test pdiv(Polynomial([1, 2]), Polynomial([1, 2, 3])) == (Polynomial([1, 2]), Polynomial([1, 2, 3]))
+  @test pdiv(Polynomial([1, 2]), Polynomial([1, 2, 3])) == (Polynomial([0]), Polynomial([1, 2]))
 
   # x / x = 1 + 0 / x
   @test pdiv(Polynomial([0, 1]), Polynomial([0, 1])) == (Polynomial([1]), Polynomial([0]))
