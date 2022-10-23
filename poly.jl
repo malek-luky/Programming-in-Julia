@@ -48,6 +48,7 @@ Porovnávání polynomů podle zvoleného datového typu.
 """
 
 import Base.==
+
 function ==(p::Polynomial{T}, q::Polynomial{T}) where {T<:Number}
   # exact comparison
   p.coefficients == q.coefficients
@@ -101,23 +102,27 @@ end
 
 
 """
-TASK1: Vynásobení dvou plynomů.
+TASK1: Součin dvou polynomů
 """
 
 import Base.*, Base.+, Base.-
+
 function *(p::Polynomial{T}, q::Polynomial{T}) where {T<:Number}
-  coefficients = zeros(T, abs(p.degree) + abs(q.degree) + 1)
-  for (index, value) in enumerate(p.coefficients)
-    for (index2, value2) in enumerate(q.coefficients)
-      coefficients[index+index2-1] += value * value2
+  coefficients = zeros(T, p.degree + q.degree + 1)
+  index = 0
+  for value in p.coefficients
+    for value2 in q.coefficients
+      index += 1
+      coefficients[index] += value * value2
     end
+    index -= q.degree
   end
   return Polynomial(coefficients)
 end
 
 
 """
-TASK 2: Součet dvou polynomů.
+TASK2: Součet dvou polynomů.
 """
 function +(p::Polynomial{T}, q::Polynomial{T}) where {T<:Number}
   coefficients = zeros(T, max(p.degree, q.degree) + 1)
@@ -158,27 +163,35 @@ Například:
 """
 function (p::Polynomial{T})(x::S) where {T<:Number,S<:Number}
   result = zero(T)
-  for (index, value) in enumerate(p.coefficients)
-    result += value * x^(index - 1)
+  x_pow = 1 / x
+  for value in p.coefficients
+    x_pow *= x
+    result += value * x_pow
   end
   return result
 end
 
 
 """
-Divide polynomial `p` by polynomial `q` and return the quotient and remainder.
+TASK3: Divide polynomial `p` by polynomial `q` and return the quotient and remainder.
 """
+Base.deepcopy(s::Polynomial) = Polynomial(s.coefficients)
+import Base.copy
+
 function pdiv(p::Polynomial{T}, q::Polynomial{T}) where {T<:Number}
   if q.degree == -1
     throw(ArgumentError("It is not possible to divide by 0!"))
   else
-    quotient = zeros(T, max(p.degree - q.degree + 1, 1))
-    while p.degree >= q.degree
-      quotient[p.degree-q.degree+1] = p.coefficients[end] / q.coefficients[end]
-      p -= Polynomial([zeros(T, p.degree - q.degree); [convert(T, p.coefficients[end] /  q.coefficients[end])]]) * q
+    remainder = deepcopy(p)
+    quotient = zeros(T,max(p.degree - q.degree + 1, 1))
+    while remainder.degree >= q.degree
+      index = remainder.degree - q.degree + 1
+      value = convert(T,remainder.coefficients[end]/ q.coefficients[end])
+      quotient[index] = value
+      deg = remainder.degree - q.degree
+      result = q.coefficients * value
+      remainder -= Polynomial([zeros(T,deg); result])
     end
-    return Polynomial(quotient), p
-
+    return Polynomial(quotient), remainder
   end
-
 end
