@@ -1,0 +1,236 @@
+
+= 2. Domácí úkol: Isingův model
+:toc:
+:author: Tomáš Kalvoda
+:date: 2022-10-26
+:stem: latexmath
+
+
+[[intro]]
+== Úvod
+
+_Isingův model_ je fyzikální model zkoumaný od dvacátých let dvacátého století, který se nejčastěji používá k popisu chování ne/magnetických materiálů.
+Je pojmenován po fyziku Ernestovi Isingovi a někdy i Wilhelmu Lenzovi (školitel Isinga).
+
+Základní myšlenka je poměrně přímočará, pokusme se ji stručně popsat v dvourozměrném případě tak, aby popis byl srozumitelný i bez znalosti některých fyzikální prerekvizit.
+
+
+[[theory]]
+== Teoretický background
+
+=== Popis modelu
+
+Představte si malé magnetické částice (přesněji dipóly, malé magnety se severním a jižním pólem), které mohou být orientovány pouze ve dvou směrech, které si označíme jako stem:[+1] a stem:[-1] (např. nahoru/dolu).
+O těchto částicích budeme mluvit jako o "spinech".
+
+Spiny jsou uspořádány do čtvercové mřížky a jednotlivě interagují pouze se svými nejbližšími sousedy, tj. až osmi okolními spiny.
+Nechť máme stem:[n] spinů, jejichž orientace si postupně označíme stem:[\sigma_1, \sigma_2,\ldots,\sigma_n].
+Jejich konkrétní rozložení na mřížce teď není podstatné.
+
+Míra interakce mezi stem:[i]-tým a stem:[j]-tým spinem je popsána hodnotou stem:[J_{i,j}].
+
+Dále předpokládejme, že naše mřížka je (resp. může být) ve vnějším magnetickém poli, jehož interakci s stem:[i]-tým spinem popíšeme veličinou stem:[h_i], stem:[i=1,2,\ldots,n].
+
+Celková energie systému, jehož konfigurace je stem:[\sigma = (\sigma_1,\sigma_2,\ldots,\sigma_n)] je pak dána výrazem
+
+[stem]
+++++
+H(\sigma) = - \sum_{\{i,j\}} J_{i,j} \sigma_i \sigma_j - \sum_{i=1}^n h_i \sigma_i,
+++++
+
+kde suma běží přes všechny dvojice sousedních spinů stem:[\sigma_i] a stem:[\sigma_j].
+Každá dvojice je započítána _právě_ jednou.
+
+S touto volbou znamének mají stem:[J_{i,j}] a stem:[h_i] následující význam:
+
+  * pokud stem:[J_{i,j} > 0], pak jde o feromagnetickou interakci,
+  * pokud stem:[J_{i,j} < 0], pak jde o anti-feromagnetickou interakci
+  * pokud stem:[J_{i,j} = 0], pak spolu spiny neinteragují
+
+a
+
+  * pokud stem:[h_i > 0], pak má stem:[i]-tý spin tendenci mít orientaci stem:[+1],
+  * pokud stem:[h_i < 0], pak má stem:[i]-tý spin tendenci mít orientaci stem:[-1],
+  * pokud stem:[h_i = 0], pak má stem:[i]-tý spin není ovlivňován vnějším prostředím.
+
+Konečně, posledním parametrem modelu je tzv. inverzní teplota stem:[\beta = \frac{1}{k_B T}], kde stem:[T] je teplota a stem:[k_B] Boltzmanova konstanta.
+Tento parametr bude mít význam pro časový vývoj systému, který je popsaný níže.
+
+
+=== Hraniční podmínky
+
+K úplnému popisu problému je nutné říci, jak se systém chová vzhledem ke spinům na kraji naší obdélníkové mřížky.
+Nejčastější jsou dvě z následujících možností.
+
+_Periodické hraniční podmínky_: sousednost prodloužíme horizontálně i vertikálně periodickým způsobem. Pokud byly spiny uspořádány v dvourozměrné mřížce s indexy stem:[(i,j)], stem:[i=1,2,\ldots,10], stem:[j=1,2,\ldots,20], pak
+
+  * sousedé stem:[(3,3)] jsou stem:[(4,2)], stem:[(4,3)], stem:[(4,4)], stem:[(3,2)], stem:[(3,4)], stem:[(2,2)], stem:[(2,3)] a stem:[(2,4)],
+  * sousedé stem:[(10, 6)] jsou stem:[(9, 5)], stem:[(10, 5)], stem:[(9, 6)], stem:[(9, 7)], stem:[(9, 6)], ale i stem:[(1,5)], stem:[(1,6)], stem:[(1, 6)],
+  * například mezi sousedy stem:[(1,1)] patří i stem:[(10, 10)],
+  * atd.
+
+Alternativně bychom mohli říci, že místo čtverce máme plochý torus.
+Slepili jsme k sobě vždy dvě protilehlé strany čtverce.
+
+_Pevné hraniční podmínky_: spiny na okraji čtverce mají pevnou předepsanou hodnotu a nikdy se nemění.
+
+
+=== Monte Carlo simulace časového vývoje (Metropolisův algoritmus)
+
+V daném okamžiku nechť je systém v konfiguraci stem:[\sigma = (\sigma_1, \sigma_2, ldots, \sigma_n)].
+Do tohoto výčtu nyní nepočítáme případné neměnné spiny předepsané pevnými hraničními podmínkami.
+Postupujeme v následujících krocích:
+
+  1. Vyberme náhodně jeden ze spinů stem:[\sigma_i] (pravděpodobnost výběru stem:[i]-tého spinu je stem:[\frac{1}{n}]).
+  2. Označme jako stem:[\mu = (\sigma_1, \ldots, \sigma_{i-1}, -\sigma_i, \sigma_{i+1}, \ldots, \sigma_n)] potenciální novou konfiguraci systému, která vznikla z konfigurace stem:[\sigma] změnou hodnoty stem:[i]-tého spinu.
+  3. Nyní se vývoj řídí podle změny energie:
+    *  Pokud energie nové konfigurace je nižší nebo rovna než energie staré konfigurace, tedy stem:[H(\mu) \leq H(\sigma)], pak systém přejde do konfigurace stem:[\mu] a začínáme znovu krokem 1.
+    *  Pokud naopak nová konfigurace má vyšší energii, tj. stem:[H(\mu) > H(\sigma)] pak k přechodu do konfigurace stem:[\mu] dojde s pravděpodobností stem:[\exp(-\beta(H(\mu) - H(\sigma)))]. V této situaci jde o hodnotu mezi stem:[0] a stem:[1]. Poté opět začínáme znovu krokem 1.
+
+
+[[implementation]]
+== Implementační pokyny
+
+Hlavním souborem je soubor `ising.jl`, který je nutné doplnit vlastním kódem.
+
+V tomto souboru naleznete modul `Ising`, který využívá moduly `Images` (generování jednoduchých obrázků) a `ProgressMeter` (případné zobrazení běhu výpočtu; nutně ho používat nemusíte).
+Případně si tyto balíčky doinstalujte příkazem `] add Images ProgressMeter`.
+
+Modul exportuje (uživateli dává k dispozici; viz použití v `ising.ipynb`) následující datové typy a metody.
+
+=== Typy `IsingPeriodic` a `IsingFixed`
+
+Tyto typy jsou podtypy abstraktního typu `IsingModel`.
+První odpovídá Isingově modelu s periodickými okrajovými podmínkami a druhý Isingově modelu s pevnými okrajovými podmínkami.
+
+Oba typy jsou si hodně podobné, liší se pouze v detailech, viz zdrojový kód.
+V obou případech ukládáme hodnoty spinů v atributu `sites` (matice) a parametry modelu v atributech
+
+  * `β` inverzní teplota (kladné číslo),
+  * `h` vnější magnetické pole (matice reálných hodnot),
+  * `J` stem:[3 \times 3] matice udávající intenzitu interakce mezi sousedy, prvek uprostřed matice nemá význam, lze ho ignorovat. Její prvky mohou být libovolná reálná čísla. Měla by být symetrická vůči všem osám symetrie čtverce.
+
+Při této numerické simulaci stačí operovat ve strojových číslech.
+
+=== Metoda `randomize!`
+
+Tato metoda jednoduše _náhodně_ nastaví spiny v daném modelu.
+Hodí se při spouštění simulace.
+
+=== Metoda `evolve!`
+
+Tato metoda spustí simulaci modelu.
+Tedy postupně ho aktualizuje podle evolučního pravidla popsaného výše.
+Délka simulace je kontrolována dvěma hodnotami:
+
+  * `max_steps`: maximální počet kroků (ve smyslu úspěšně změněných spinů), výchozí hodnota `1_000`.
+  * `max_tries`: maximální počet neúspěšných pokusů o změnu hodnoty spinu, výchozí hodnota `1_00`.
+
+Druhá hodnota je důležitá.
+Během vývoje systém spíše spěje (v závislosti na teplotě) k rovnováze, čímž se postupně zmenšuje pravděpodobnost změny spinu.
+Simulace by se tedy mohla nebezpečně prodloužit.
+Tomu zamezíme právě hodnotou `max_tries`.
+
+Nastavení vhodných hodnot může být (určitě je) závisle na nastavení parametrů modelu.
+
+=== Metoda `energy`
+
+Vypočte energii dané konfigurace.
+
+=== Metoda `plot`
+
+Slouží k vizualizaci spinů na mřížce.
+Můžete využít libovolný z grafických balíčků.
+
+NOTE: Ideálně s odevzdáním pushněte i svou verzi Jupyter notebooku `ising.ipynb`, přegenerovanou s vaší implementací modulu `Ising`, viz níže.
+
+Můžete se pokusit i vytvořit animaci časového vývoje.
+
+=== Další
+
+Nebojte se přidat další vlastní pomocné metody.
+Je dobré kód logicky strukturovat a využívat možností Julia jako je třeba _multiple dispatch_.
+
+
+[[notebook]]
+== Jupyter notebook
+
+V repozitáři naleznete i Jupyter notebook `ising.ipynb` v kterém jsou ukázky simulací různých situací.
+
+Můžete se pokusit vytvořit vlastní varianty (počáteční podmínky, magnetické pole, interakce) a vygenerovat zajímavé obrázky.
+Můžete si pohrát i s vizualizací samotnou (změna barvy, nemusíte nutně vizualizovat spiny samotné, ale třeba jen nějakou lokální střední hodnotu...)
+Z nejzajímavějších mohu sestrojit poutavý BI-JUL poster.
+
+
+[[tests]]
+== Lokální spouštění testů
+
+NOTE: Zadání tohoto úkolu je volnější a chování programu je v zásadě náhodné. Testování proto není úplně extenzivní. Řiďte se spíše ukázkovým Jupyter Notebookem a svým instinktem.
+
+K lokálnímu spuštění testů budete pravděpodobně potřebovat doinstalovat balíček `Glob`.
+
+[source,julia]
+----
+import Pkg; Pkg.add("Glob")
+----
+
+Poté v kořenovém adresáři tohoto zadání stačí z příkazové řádky spustit
+
+[source]
+----
+$ julia --color=yes test/runtests.jl
+----
+
+Tímto příkazem spustíte všechny test v souborech `test/test_*.jl`.
+Případně tak do adresáře `test` můžete snadno přidat i další pomocné vlastní testy vlastních pomocných metod, jen je musíte pojmenovat ve tvaru `test_*.jl`.
+
+Pokud vše dopadne dobře, měli byste vidět následující standardní výstup:
+
+[source]
+----
+$ julia test/runtests.jl
+┌ Info: Running tests in test_constructors.jl...
+└ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Test Summary:                                                | Pass  Total  Time
+IsingPerodic: constructor                                    |    2      2  0.2s
+Test Summary:                                                | Pass  Total  Time
+IsingFixed: constructor                                      |    2      2  0.1s
+┌ Info: Running tests in test_energy.jl...
+└ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Test Summary:                                                | Pass  Total  Time
+IsingFixed: energy                                           |    4      4  0.1s
+Test Summary:                                                | Pass  Total  Time
+IsingPeriodic: energy                                        |    4      4  0.0s
+┌ Info: Running tests in test_evolve.jl...
+└ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Test Summary:                                                | Pass  Total  Time
+evolve!: simple test                                         |    1      1  1.6s
+┌ Info: Running tests in test_other.jl...
+└ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+┌ Info: Running tests in test_randomize.jl...
+└ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Test Summary:                                                | Pass  Total  Time
+randomize!: IsingPeriodic                                    |    1      1  0.1s
+Test Summary:                                                | Pass  Total  Time
+randomize!: IsingFixed                                       |    5      5  0.6s
+----
+
+V opačném případě dostanete od Julia vynadáno!
+
+WARNING: Pokud budete pro práci s grafikou používat jiný balíček, než je `PyPlot` či `Images`, nebo budete potřebovat další balíček doinstalovat, pak musíte upravit sedmý řádek souboru `gitlab-ci.yml`. Tj. přidat váš balíček, aby byl k dispozici i v testovacím prostředí na gitlabu.
+
+
+[[submission]]
+== Řešení a odevzdání
+
+Opět vytvořte větev odvozenou z větve `assignment/02-fermi-ulam` a nezvěte ji například `solution/02-fermi-ulam`.
+Do `solution/02-fermi-ulam` vložte své řešení editací souboru `fermi-ulam.jl` případně přidáním testů do složky `test` a ideálně modifikujte i `fermi-ulam.ipynb` a doplňte ho o vlastní pokusy.
+Až budete se svým řešením spokojeni, vytvořte MR (to můžete i dříve, aspoň uvidíte výsledek testů, pokud je nespouštíte lokálně) a přiřaďte mě k němu jako `assignee`.
+Tímto aktem úkol odevzdáte.
+
+
+[[literatura]]
+=== Odkazy na literaturu
+
+  * [1] Ising, E. "Beitrag zur Theorie des Ferromagnetismus", Z. Phys., 31 (1), 1925, 253–258, doi:10.1007/BF02980577.
+  * [2] Brush, Stephen G. "History of the Lenz-Ising Model". Reviews of Modern Physics. 39 (4), 1967, 883–893, doi:10.1103/RevModPhys.39.883.

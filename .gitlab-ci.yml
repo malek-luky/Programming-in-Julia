@@ -1,0 +1,8 @@
+# run tests in the Julia image provided by BI-JUL
+tests:
+  image: gitlab.fit.cvut.cz:5000/bi-jul/bi-jul:latest
+  stage: test
+  script:
+    - julia --version
+    - julia -e 'import Pkg; Pkg.add(["PyPlot", "Images", "ProgressMeter"])'
+    - julia --color=yes test/runtests.jl 
