@@ -77,7 +77,7 @@ _Pevné hraniční podmínky_: spiny na okraji čtverce mají pevnou předepsano
 
 === Monte Carlo simulace časového vývoje (Metropolisův algoritmus)
 
-V daném okamžiku nechť je systém v konfiguraci stem:[\sigma = (\sigma_1, \sigma_2, ldots, \sigma_n)].
+V daném okamžiku nechť je systém v konfiguraci stem:[\sigma = (\sigma_1, \sigma_2, \ldots, \sigma_n)].
 Do tohoto výčtu nyní nepočítáme případné neměnné spiny předepsané pevnými hraničními podmínkami.
 Postupujeme v následujících krocích:
 
@@ -223,8 +223,8 @@ WARNING: Pokud budete pro práci s grafikou používat jiný balíček, než je 
 [[submission]]
 == Řešení a odevzdání
 
-Opět vytvořte větev odvozenou z větve `assignment/02-fermi-ulam` a nezvěte ji například `solution/02-fermi-ulam`.
-Do `solution/02-fermi-ulam` vložte své řešení editací souboru `fermi-ulam.jl` případně přidáním testů do složky `test` a ideálně modifikujte i `fermi-ulam.ipynb` a doplňte ho o vlastní pokusy.
+Opět vytvořte větev odvozenou z větve `assignment/02-ising` a nezvěte ji například `solution/02-ising`.
+Do `solution/02-ising` vložte své řešení editací souboru `ising.jl` případně přidáním testů do složky `test` a ideálně modifikujte i `ising.ipynb` a doplňte ho o vlastní pokusy.
 Až budete se svým řešením spokojeni, vytvořte MR (to můžete i dříve, aspoň uvidíte výsledek testů, pokud je nespouštíte lokálně) a přiřaďte mě k němu jako `assignee`.
 Tímto aktem úkol odevzdáte.
 
