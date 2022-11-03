@@ -62,7 +62,7 @@ Tento parametr bude mít význam pro časový vývoj systému, který je popsan�
 K úplnému popisu problému je nutné říci, jak se systém chová vzhledem ke spinům na kraji naší obdélníkové mřížky.
 Nejčastější jsou dvě z následujících možností.
 
-_Periodické hraniční podmínky_: sousednost prodloužíme horizontálně i vertikálně periodickým způsobem. Pokud byly spiny uspořádány v dvourozměrné mřížce s indexy stem:[(i,j)], stem:[i=1,2,\ldots,10], stem:[j=1,2,\ldots,20], pak
+_Periodické hraniční podmínky_: sousednost prodloužíme horizontálně i vertikálně periodickým způsobem. Pokud byly spiny uspořádány v dvourozměrné mřížce s indexy stem:[(i,j)], stem:[i=1,2,\ldots,10], stem:[j=1,2,\ldots,10], pak
 
   * sousedé stem:[(3,3)] jsou stem:[(4,2)], stem:[(4,3)], stem:[(4,4)], stem:[(3,2)], stem:[(3,4)], stem:[(2,2)], stem:[(2,3)] a stem:[(2,4)],
   * sousedé stem:[(10, 6)] jsou stem:[(9, 5)], stem:[(10, 5)], stem:[(9, 6)], stem:[(9, 7)], stem:[(9, 6)], ale i stem:[(1,5)], stem:[(1,6)], stem:[(1, 6)],
