@@ -124,7 +124,7 @@ Tedy postupně ho aktualizuje podle evolučního pravidla popsaného výše.
 Délka simulace je kontrolována dvěma hodnotami:
 
   * `max_steps`: maximální počet kroků (ve smyslu úspěšně změněných spinů), výchozí hodnota `1_000`.
-  * `max_tries`: maximální počet neúspěšných pokusů o změnu hodnoty spinu, výchozí hodnota `1_00`.
+  * `max_tries`: maximální počet neúspěšných pokusů (v řadě za sebou, po každém úspěšném přehození počítáme od znovu) o změnu hodnoty spinu, výchozí hodnota `1_00`.
 
 Druhá hodnota je důležitá.
 Během vývoje systém spíše spěje (v závislosti na teplotě) k rovnováze, čímž se postupně zmenšuje pravděpodobnost změny spinu.
