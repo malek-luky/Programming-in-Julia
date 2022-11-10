@@ -120,6 +120,7 @@ Pokusme se `max_steps`-krát změnit hodnotu některého ze spinů.
 Pokud se náme `max_tries`-krát nepodaří hodnotu spinu změnit, tak jsme pravděpodobně blízko rovnovážného stavu a simulaci ukončujeme.
 """
 function evolve!(model, max_steps=1000, max_tries=100)
+  format(model)
   steps = 0
   tries = 0
 
@@ -129,18 +130,18 @@ function evolve!(model, max_steps=1000, max_tries=100)
     i = rand(1:model.width*model.height)
 
     # Calculate energy change
-    new_model = deepcopy(model)
-    new_model.sites[i] = -new_model.sites[i]
     H = energy(model)
-    new_H =  energy(new_model)
+    model.sites[i] = -model.sites[i]
+    new_H =  energy(model) # avoid deepcopy
     ΔH = new_H - H
 
     # Decide whether to accept the change
     if ΔH <= 0 || rand() <= exp(-model.β * ΔH)
-      model.sites[i] = -model.sites[i]
+      # if true model.sites are already switched
       steps += 1
       tries = 0
     else
+      model.sites[i] = -model.sites[i] # switch back
       tries += 1
     end
   end
@@ -196,6 +197,18 @@ function append(m, model)
 end
 
 """
+Preformatuje model
+Preformatovani modelu z matrixu na 2D array
+Umozni pristupovat ve 2D indexech (matrix[i][j])
+Mutable - we edit directly the model
+"""
+function format(model)
+  model.sites = [append(model.sites, model)[i, :] for i in 1:model.width+2]
+  model.J = [model.J[i, :] for i in 1:3]
+  model.h = [model.h[i, :] for i in 1:model.width+2]
+end
+
+"""
 Nastaví spiny zcela náhodně.
 """
 function randomize!(model)
@@ -222,9 +235,13 @@ STEPS:
 """
 ∑(v) = +(v...) # definice sumy (funguje stejně jako sum(), jen je čitelnější)
 function energy(model)
-  σ = [append(model.sites, model)[i, :] for i in 1:model.height+2]
-  J = [model.J[i, :] for i in 1:3]
-  -∑(J[-dj+2][di+2] * σ[i+di][j+dj] * σ[i][j] for i in 2:model.width+1, j in 2:model.height+1, (di, dj) in [[-1, -1], [0, -1], [1, -1], [1, 0]]) - ∑(model.h[i] * model.sites[i] for i in 1:model.height*model.width)
+  # σ = model.sites
+  # J = model.J
+  if model.height == length(model.sites) && model.width == length(model.sites[1])
+    format(model)
+  end
+  -∑(model.J[-dj+2][di+2] * model.sites[i+di][j+dj] * model.sites[i][j] for i in 2:model.width+1, j in 2:model.height+1, (di, dj) in [[-1, -1], [0, -1], [1, -1], [1, 0]]) - ∑(model.h[i][j] * model.sites[i+1][j+1] for i in 1:model.width, j in 1:model.height)
+  #model je změněn uvnitř funkce
 end
 
 end # module

@@ -4,5 +4,5 @@ tests:
   stage: test
   script:
     - julia --version
-    - julia -e 'import Pkg; Pkg.add(["PyPlot", "Images", "ProgressMeter"])'
+    - julia -e 'import Pkg; Pkg.add(["PyPlot", "Images", "ProgressMeter","Plots"])'
     - julia --color=yes test/runtests.jl 
