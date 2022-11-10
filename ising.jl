@@ -129,18 +129,18 @@ function evolve!(model, max_steps=1000, max_tries=100)
     i = rand(1:model.width*model.height)
 
     # Calculate energy change
-    new_model = deepcopy(model)
-    new_model.sites[i] = -new_model.sites[i]
     H = energy(model)
-    new_H =  energy(new_model)
+    model.sites[i] = -model.sites[i] #prevents unnecessary deepcopy
+    new_H =  energy(model)
     ΔH = new_H - H
 
     # Decide whether to accept the change
     if ΔH <= 0 || rand() <= exp(-model.β * ΔH)
-      model.sites[i] = -model.sites[i]
+      # sites are already switched
       steps += 1
       tries = 0
     else
+      model.sites[i] = -model.sites[i] #revert
       tries += 1
     end
   end
