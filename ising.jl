@@ -22,6 +22,7 @@ export plot, evolve!, randomize!, energy
 #
 
 abstract type IsingModel end
+∑(v) = +(v...) # definice sumy (funguje stejně jako sum(), čitelnější, fajn na vyzkoušení čeho je Julie schopná)
 
 """
 Isingův model s periodickými okrajovými podmínkami.
@@ -34,12 +35,12 @@ Matice by měla být "symetrická" vůči zrcadlení vzhledem ke všem osám sym
 
 Konečně lze předat inverzní teplotu (`β`, výchozí hodnota `1.0`) nebo vnější magnetické pole (`h`, ve výchozím stavu vypnuto, tedy všechny jeho prvky jsou nulové).
 """
-mutable struct IsingPeriodic <: IsingModel
+struct IsingPeriodic <: IsingModel
   height::Int64
   width::Int64
   J::Matrix{Float64}
   β::Float64
-  sites::Matrix{Int8} # Is this optimal? No, we know it has only 1 or -1, Int8 is sufficient
+  sites::Matrix{Int8}
   h::Matrix{Float64}
 
   function IsingPeriodic(height, width, J=ones(3, 3); β=1.0, h=zeros(height, width))
@@ -74,12 +75,12 @@ Matice by měla být "symetrická" vůči zrcadlení vzhledem ke všem osám sym
 Konečně lze předat inverzní teplotu (`β`, výchozí hodnota `1.0`) nebo vnější magnetické pole (`h`, ve výchozím stavu vypnuto, tedy všechny jeho prvky jsou nulové).
 
 """
-mutable struct IsingFixed <: IsingModel
+struct IsingFixed <: IsingModel
   height::Int64
   width::Int64
   J::Matrix{Float64}
   β::Float64
-  sites::Matrix{Int8} # Is this optimal? No, we know it has only 1 or -1, Int8 is sufficient
+  sites::Matrix{Int8}
   h::Matrix{Float64}
 
   function IsingFixed(sites, J=ones(3, 3); β=1.0, h=zeros(size(sites)))
@@ -102,10 +103,36 @@ mutable struct IsingFixed <: IsingModel
 end
 
 
-#
-# Časový vývoj
-#
+################################################
+####### VIZUALIZACE
+################################################
 
+"""
+Vizualizační metoda pro vykreslení spinů v mřížce (obdélníků).
+NOTE: Vaše vizualizace nemusí nutně vypadat přesně tak jako moje v `ising.ipynb`. Nebojte se být kreativní.
+"""
+function plot(model)
+  heatmap(model.sites, aspect_ratio=:equal, color=:grays, legend=false, xaxis=false, yaxis=false, grid=false, framestyle=:box, title="Ising model")
+end
+
+################################################
+####### NÁHODNÉ NASTAVENÍ SPINŮ
+################################################
+
+"""
+Nastaví spiny zcela náhodně.
+"""
+function randomize!(model::IsingPeriodic)
+  model.sites[1:end, 1:end] = rand([-1, 1], model.width, model.height)
+end
+
+function randomize!(model::IsingFixed)
+  model.sites[2:end-1, 2:end-1] = rand([-1, 1], model.width - 2, model.height - 2)
+end
+
+################################################
+####### ČASOVÝ VÝVOJ
+################################################
 """
 Spustí simulaci Isingova modelu.
 Na vstupu popořadě očekává:
@@ -122,109 +149,102 @@ Pokud se náme `max_tries`-krát nepodaří hodnotu spinu změnit, tak jsme prav
 function evolve!(model, max_steps=1000, max_tries=100)
   steps = 0
   tries = 0
+  σ = [append(model)[i, :] for i in 1:model.height+2]
+  J = [model.J[i, :] for i in 1:3]
 
   while steps < max_steps && tries < max_tries
     # Pick random site
     print("Steps: $steps, tries: $tries\r")
-    i = rand(1:model.width*model.height)
+    x = rand(2:model.width+1) # jiné rozměry kvůli appendu
+    y = rand(2:model.height+1)
+    i = (y-2) * model.width + (x-1) # index pro matici bez appendu
 
     # Calculate energy change
-    H = energy(model)
-    model.sites[i] = -model.sites[i] #prevents unnecessary deepcopy
-    new_H =  energy(model)
+    H = energy_neigbors(σ, J, x, y) + model.h[i] * model.sites[i]
+    model.sites[i] = -model.sites[i]
+    σ[x][y] = -σ[x][y]
+    new_H = energy_neigbors(σ, J, x, y) + model.h[i] * model.sites[i]
     ΔH = new_H - H
 
     # Decide whether to accept the change
-    if ΔH <= 0 || rand() <= exp(-model.β * ΔH)
-      # sites are already switched
+    if ΔH <= 0 || rand() <= exp(-model.β * ΔH) # sites are already switched
       steps += 1
       tries = 0
     else
       model.sites[i] = -model.sites[i] #revert
+      σ[x][y] = -σ[x][y] #revert
       tries += 1
     end
   end
 end
 
 
-#
-# Vizualizace
-#
+################################################
+####### VÝPOČET ENERGIE
+################################################
 
 """
-Vizualizační metoda pro vykreslení spinů v mřížce (obdélníků).
-NOTE: Vaše vizualizace nemusí nutně vypadat přesně tak jako moje v `ising.ipynb`. Nebojte se být kreativní.
+Pomocná funkce - Přidaní okrajů
+Abychom nemuseli řešit pomocí ifů při výpočtech zda se jedná o Periodic či Fixed model, vytvoříme zde na základě jeho typu patříčny "okraj"
+
+* Fixed - doplníme na okraj nuly nuly, tudíž nebude problém s indexací, a můžeme použít stejný kód pro výpočet energie
+* Periodic - doplníme na okraj hodnoty z opračné strany matrixu pro vytvoření dojmu plochého torusu
 """
-function plot(model)
-  heatmap(model.sites, aspect_ratio=:equal, color=:grays, legend=false,xaxis=false,yaxis=false, grid=false, framestyle=:box, title="Ising model") 
+function append(model::IsingPeriodic)
+  new_m = zeros(model.width + 2, model.height + 2)
+  new_m[2:end-1, 2:end-1] = model.sites
+  new_m[1, 2:end-1] = model.sites[end, :]
+  new_m[end, 2:end-1] = model.sites[1, :]
+  new_m[2:end-1, 1] = model.sites[:, end]
+  new_m[2:end-1, end] = model.sites[:, 1]
+  new_m[1, 1] = model.sites[end, end]
+  new_m[1, end] = model.sites[end, 1]
+  new_m[end, 1] = model.sites[1, end]
+  new_m[end, end] = model.sites[1, 1]
+  new_m
+end
+function append(model::IsingFixed)
+  new_m = zeros(model.width + 2, model.height + 2)
+  new_m[2:end-1, 2:end-1] = model.sites
+  new_m
 end
 
-
-#
-# Pomocné metody
-#
-
 """
-Přidaní okrajů
-m = matrix, which we want to add zero border to
+Vypočítání energie první sumy všech možných sousedů (celkem 20 - možnosti viz pull request)
+J = Míra iterakce mezi i-tym a j-tym spinem
+σ = orientace spinu
+width = šířka mřížky
+height = výška mřížky
 
 STEPS:
-1) if Ising.fixed add zeros everywhere
-2) if Ising.periodic add first and last row and columm
-  +add the same to the diagonal (its best to draw it)
+1) rozšířit okraje na základě modelu (fixed doplní nuly, periodic "prekopiruje" okraje)
+2) Předělání matice pro přehlednější použití [i][j] indexingu (#TODO: příště se držet klasických indexů, toto není to vhodné)
+3) iterujeme pres všechny spinu a vypočítáme energii pro každý spin (první suma za vzorce)
+4) Uprostřed for loopu spočítame sumu přes 4 sousedy vpravo dole (pouze 4, aby se neduplikovali - každý sousem má být pouze 1x)
 """
-function append(m, model)
-  if typeof(model) == IsingFixed
-    new_m = zeros(model.width + 2, model.height + 2)
-    new_m[2:end-1, 2:end-1] = m
-    new_m
-  elseif typeof(model) == IsingPeriodic
-    new_m = zeros(model.width + 2, model.height + 2)
-    new_m[2:end-1, 2:end-1] = m
-    new_m[1, 2:end-1] = m[end, :]
-    new_m[end, 2:end-1] = m[1, :]
-    new_m[2:end-1, 1] = m[:, end]
-    new_m[2:end-1, end] = m[:, 1]
-    new_m[1, 1] = m[end, end]
-    new_m[1, end] = m[end, 1]
-    new_m[end, 1] = m[1, end]
-    new_m[end, end] = m[1, 1]
-    new_m
-  else
-    throw(ArgumentError("Model has to be Ising.fixed or Ising.periodic!"))
-  end
-end
-
-"""
-Nastaví spiny zcela náhodně.
-"""
-function randomize!(model)
-  if typeof(model) == IsingFixed
-    model.sites[2:end-1, 2:end-1] = rand([-1, 1], model.width - 2, model.height - 2)
-  elseif typeof(model) == IsingPeriodic
-    model.sites = rand([-1, 1], model.width, model.height)
-  else
-    throw(ArgumentError("Model has to be Ising.fixed or Ising.periodic!"))
-  end
+function energy_neigbors(σ, J, x, y)
+  ∑(J[-dj+2][di+2] * σ[x+di][y+dj] * σ[x][y] for (di, dj) in [[-1, -1], [0, -1], [1, -1], [1, 0]])
 end
 
 """
 Vrátí celkovou energii modelu v dané konfiguraci.
-model = Ising.fixed or Ising.periodic (mutable - lze měnit i z funkcí)
+model = Ising.fixed nebo Ising.periodic
 model format = height, width, J, β, sites, h
 
 STEPS:
-1) append the matrices with zeros so we wont have to check the boundaries
-2) change matrix to 2D array (so that we can use [i][j] indexing)
-3) iterate over all possible sites (=sigmas) on indexes i,j
-4) for each site check neibours (using J) on right bottom (only 4 indexes instead of 8 so we wont check one neigbour twice)
-5) compute the final sum using the formula
+1) První suma ze vzorce se spočítá v rámci energy_neigbors
+2) Druhá suma viz níže
 """
-∑(v) = +(v...) # definice sumy (funguje stejně jako sum(), jen je čitelnější)
 function energy(model)
-  σ = [append(model.sites, model)[i, :] for i in 1:model.height+2]
+  σ = [append(model)[i, :] for i in 1:model.height+2]
   J = [model.J[i, :] for i in 1:3]
-  -∑(J[-dj+2][di+2] * σ[i+di][j+dj] * σ[i][j] for i in 2:model.width+1, j in 2:model.height+1, (di, dj) in [[-1, -1], [0, -1], [1, -1], [1, 0]]) - ∑(model.h[i] * model.sites[i] for i in 1:model.height*model.width)
+  result = 0
+  for x in 2:model.width+1
+    for y in 2:model.height+1
+      result -= energy_neigbors(σ, J, x, y)
+    end
+  end
+  result -= ∑(model.h[i] * model.sites[i] for i in 1:model.height*model.width) # druhá suma
 end
 
 end # module
