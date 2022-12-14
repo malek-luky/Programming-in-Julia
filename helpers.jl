@@ -1,6 +1,6 @@
 ##
 #
-# Případný další pomocný kók.
+# Případný další pomocný kód.
 #
 
 

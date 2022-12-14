@@ -50,7 +50,7 @@ Jen je přidejte do tohoto adresáře a uveďte zdroj.
 
   1. Načtěte tabulku ze souboru `aravg.mon.ocean.90S.90N.v5.0.0.202210.asc`.
   2. Vizualizujte časový vývoj odchylky průměrně globální teploty oceánů.
-  3. Opět pomocí regrese zkuse na datech trend v rámci jednotlivých měsíců.
+  3. Opět pomocí regrese zkuste na datech trend v rámci jednotlivých měsíců.
 
 
 [[notes]]
@@ -71,6 +71,6 @@ julia> df = DataFrame(XLSX.readtable("data.xlsx", "List"))
 == Řešení a odevzdání
 
 Opět vytvořte větev odvozenou z větve `assignment/03-weather` a nezvěte ji `solution/03-weather`.
-Do `solution/03-weather` vložte své řešení přímo editací Jupyter notebooku `04-weather.ipynb`, případně `helpers.jl`.
+Do `solution/03-weather` vložte své řešení přímo editací Jupyter notebooku `03-weather.ipynb`, případně `helpers.jl`.
 Až budete se svým řešením spokojeni, vytvořte MR (to můžete i dříve) a přiřaďte mě k němu jako `assignee`.
 Tímto aktem úkol odevzdáte.
