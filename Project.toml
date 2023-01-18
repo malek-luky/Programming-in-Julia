@@ -1,0 +1,13 @@
+name = "IntervalArithmetic"
+uuid = "494c2b3a-52f5-473c-b9b8-0d1937c0eaa2"
+authors = ["Lukáš Málek <malek.luky@gmail.com> and contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1.8"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

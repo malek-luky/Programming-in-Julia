@@ -64,7 +64,7 @@ Operace *dělení* je komplikovanější kvůli ne/možnosti dělení nulou, def
 
 [stem]
 ++++
-  [x_1,\, x_2] / [y_1,\, y_2] := [x_1\, x_2] \cdot [y_1,\, y_2]^{-1},
+  [x_1,\, x_2] / [y_1,\, y_2] := [x_1,\, x_2] \cdot [y_1,\, y_2]^{-1},
 ++++
 
 kde
