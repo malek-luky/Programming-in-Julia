@@ -1,7 +1,7 @@
 #############################################################
 # IMPORTS
 #############################################################
-import Base: !=,==,+, -, *, /, inv, min, max
+import Base: !=,==,+, -, *, /, >, <, inv, min, max
 
 #############################################################
 # COMPARISON
@@ -17,6 +17,20 @@ end
 Checks if the intervals `a` and `b` are not equal.
 """
 !=(a::Interval, b::Interval) = !(a==b)
+
+"""
+Compare if `a` < `b`.
+"""
+function <(a::Interval, b::Interval)
+    abs(a.x1-a.x2)<abs(b.x1-b.x2)
+end
+
+"""
+Compare if `a` > `b`.
+"""
+function >(a::Interval, b::Interval)
+    abs(a.x1-a.x2)>abs(b.x1-b.x2)
+end
 
 
 #############################################################
