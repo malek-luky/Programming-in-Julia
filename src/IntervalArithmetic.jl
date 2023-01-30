@@ -8,7 +8,7 @@
 * include: functions from different files
 """
 module IntervalArithmetic
-export Interval, +, -, *, /
+export Interval, +, -, *, /, ==, !=, >, <, inv
 include("intervals.jl")
 include("arithmetic.jl")
 end # module

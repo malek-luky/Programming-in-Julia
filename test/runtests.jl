@@ -44,7 +44,8 @@ x7 = Interval(-1.,4.)
     @test (-x5/-x1) == (-x5*inv(-x1))
     
     # ERRORS ON PURPOSE
-    @test inv(x7) !=  Interval(-1.0, 0.25)
-    @test (x7/x6) != (x7*inv(x6))
-    @test (x6/x7) != Interval(-2.0, 2.0)
+    @test_throws "a>b" inv(x7) ==  Interval(-1.0, 0.25)
+    @test_throws "Division by Interval with zero" (x7/x6) == (x7*inv(x6))
+    @test_throws "Division by Interval with zero" (x6/x7) == Interval(-2.0, 2.0)
+    @test_throws "Division by zero" (x6/0) == Interval(-2.0, 2.0)
 end

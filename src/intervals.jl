@@ -3,6 +3,10 @@ import Base.show
 #############################################################
 # INTERVAL STRUCT
 #############################################################
+"""
+    Interval{T<:Number}
+Struct that holds all necessary informatino about the Interval
+"""
 struct Interval{T<:Number}
     x1 :: T
     x2 :: T
@@ -21,13 +25,20 @@ end
 # BASIC FUNCTIONS
 #############################################################
 """
-Create Interval using previous struct
+    Interval(a::T, b::T)
+Create Interval using Interval struct
 """
 Interval(a::T, b::T) where T<:Number = Interval{T}(a, b)
+
+"""
+    Interval(a::T)
+Create Interval with only single value
+"""
 Interval(a::T) where T<:Number = Interval{T}(a, a)
 
 """
-Print interval in a more friendly format
+    show(io::IO,object::Interval)
+Print interval in a more readable format
 """
 function show(io::IO,object::Interval)
     print(io,"[$(object.x1), $(object.x2)]")
